@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspectCore", "AspectCore\AspectCore.csproj", "{0AE1F6B9-3C34-483A-A71F-DAB464DBAD58}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{19DB17E9-9D65-43E5-9B9C-65F334D1E39E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspectCore.Test.Web", "Test\AspectCore.Test.Web\AspectCore.Test.Web.csproj", "{33127575-19B2-4BA6-B675-A609C18B0C0F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0AE1F6B9-3C34-483A-A71F-DAB464DBAD58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AE1F6B9-3C34-483A-A71F-DAB464DBAD58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AE1F6B9-3C34-483A-A71F-DAB464DBAD58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AE1F6B9-3C34-483A-A71F-DAB464DBAD58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33127575-19B2-4BA6-B675-A609C18B0C0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33127575-19B2-4BA6-B675-A609C18B0C0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33127575-19B2-4BA6-B675-A609C18B0C0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33127575-19B2-4BA6-B675-A609C18B0C0F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{33127575-19B2-4BA6-B675-A609C18B0C0F} = {19DB17E9-9D65-43E5-9B9C-65F334D1E39E}
+	EndGlobalSection
+EndGlobal
