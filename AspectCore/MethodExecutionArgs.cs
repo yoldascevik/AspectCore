@@ -9,12 +9,10 @@ namespace AspectCore
 
         public MethodExecutionArgs(
             MethodInfo method, 
-            object[] arguments, 
-            IServiceProvider serviceProvider)
+            object[] arguments)
         {
             Method = method;
             Arguments = arguments;
-            ServiceProvider = serviceProvider;
         }
         
         /// <summary>
@@ -36,10 +34,5 @@ namespace AspectCore
         /// Method result
         /// </summary>
         public object ReturnValue { get; set; }
-        
-        /// <summary>
-        /// Service provider for DI
-        /// </summary>
-        public IServiceProvider ServiceProvider { get; }
     }
 }

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using AspectCore.Test.Web.Logging;
 using AspectCore.Test.Web.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace AspectCore.Test.Web.Controllers
 {
@@ -14,7 +10,6 @@ namespace AspectCore.Test.Web.Controllers
     public class WeatherForecastController : ControllerBase
     {
         private readonly IWeatherForecastService _weatherForecastService;
-        private readonly ILogger<WeatherForecastController> _logger;
 
         public WeatherForecastController(IWeatherForecastService weatherForecastService)
         {
