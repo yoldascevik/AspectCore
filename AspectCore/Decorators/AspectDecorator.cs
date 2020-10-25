@@ -32,27 +32,35 @@ namespace AspectCore.Decorators
             }
 
             // OnBefore
-            var methodExecutionArgs = new MethodExecutionArgs(method, args, _serviceProvider);
-            aspects.ForEach(attribute => attribute.OnBefore(methodExecutionArgs));
+            var methodExecutionArgs = new MethodExecutionArgs(method, args);
+            aspects.ForEach(attribute => attribute
+                .LoadDependencies(_serviceProvider)
+                .OnBefore(methodExecutionArgs));
 
             try
             {
-                if (methodExecutionArgs?.ReturnValue == null)
+                if (methodExecutionArgs.ReturnValue == null)
                     methodExecutionArgs.ReturnValue = method.Invoke(_decorated, args);
 
                 // OnSuccess
-                aspects.ForEach(attribute => attribute.OnSuccess(methodExecutionArgs));
+                aspects.ForEach(attribute => attribute
+                    .LoadDependencies(_serviceProvider)
+                    .OnSuccess(methodExecutionArgs));
             }
             catch (Exception exception)
             {
                 // OnException
                 methodExecutionArgs.Exception = exception;
-                aspects.ForEach(attribute => attribute.OnException(methodExecutionArgs));
+                aspects.ForEach(attribute => attribute
+                    .LoadDependencies(_serviceProvider)
+                    .OnException(methodExecutionArgs));
             }
             finally
             {
                 // OnAfter
-                aspects.ForEach(attribute => attribute.OnAfter(methodExecutionArgs));
+                aspects.ForEach(attribute => attribute
+                    .LoadDependencies(_serviceProvider)
+                    .OnAfter(methodExecutionArgs));
             }
 
             return methodExecutionArgs.ReturnValue;
@@ -71,26 +79,34 @@ namespace AspectCore.Decorators
             }
 
             // OnBefore
-            var methodExecutionArgs = new MethodExecutionArgs(method, args, _serviceProvider);
-            await Task.WhenAll(aspects.Select(aspect => aspect.OnBeforeAsync(methodExecutionArgs)));
+            var methodExecutionArgs = new MethodExecutionArgs(method, args);
+            await Task.WhenAll(aspects.Select(aspect => aspect
+                .LoadDependencies(_serviceProvider)
+                .OnBeforeAsync(methodExecutionArgs)));
             
             try
             {
                 await (Task) method.Invoke(_decorated, args);
 
                 // OnSuccess
-                await Task.WhenAll(aspects.Select(aspect => aspect.OnSuccessAsync(methodExecutionArgs)));
+                await Task.WhenAll(aspects.Select(aspect => aspect
+                    .LoadDependencies(_serviceProvider)
+                    .OnSuccessAsync(methodExecutionArgs)));
             }
             catch (Exception exception)
             {
                 // OnException
                 methodExecutionArgs.Exception = exception;
-                await Task.WhenAll(aspects.Select(aspect => aspect.OnExceptionAsync(methodExecutionArgs)));
+                await Task.WhenAll(aspects.Select(aspect => aspect
+                    .LoadDependencies(_serviceProvider)
+                    .OnExceptionAsync(methodExecutionArgs)));
             }
             finally
             {
                 // OnAfter
-                await Task.WhenAll(aspects.Select(aspect => aspect.OnAfterAsync(methodExecutionArgs)));
+                await Task.WhenAll(aspects.Select(aspect => aspect
+                    .LoadDependencies(_serviceProvider)
+                    .OnAfterAsync(methodExecutionArgs)));
             }
         }
 
@@ -106,8 +122,10 @@ namespace AspectCore.Decorators
             }
 
             // OnBefore
-            var methodExecutionArgs = new MethodExecutionArgs(method, args, _serviceProvider);
-            await Task.WhenAll(aspects.Select(aspect => aspect.OnBeforeAsync(methodExecutionArgs)));
+            var methodExecutionArgs = new MethodExecutionArgs(method, args);
+            await Task.WhenAll(aspects.Select(aspect => aspect
+                .LoadDependencies(_serviceProvider)
+                .OnBeforeAsync(methodExecutionArgs)));
             
             try
             {
@@ -115,18 +133,24 @@ namespace AspectCore.Decorators
                     methodExecutionArgs.ReturnValue =  await (Task<T>) method.Invoke(_decorated, args);
 
                 // OnSuccess
-                await Task.WhenAll(aspects.Select(aspect => aspect.OnSuccessAsync(methodExecutionArgs)));
+                await Task.WhenAll(aspects.Select(aspect => aspect
+                    .LoadDependencies(_serviceProvider)
+                    .OnSuccessAsync(methodExecutionArgs)));
             }
             catch (Exception exception)
             {
                 // OnException
                 methodExecutionArgs.Exception = exception;
-                await Task.WhenAll(aspects.Select(aspect => aspect.OnExceptionAsync(methodExecutionArgs)));
+                await Task.WhenAll(aspects.Select(aspect => aspect
+                    .LoadDependencies(_serviceProvider)
+                    .OnExceptionAsync(methodExecutionArgs)));
             }
             finally
             {
                 // OnAfter
-                await Task.WhenAll(aspects.Select(aspect => aspect.OnAfterAsync(methodExecutionArgs)));
+                await Task.WhenAll(aspects.Select(aspect => aspect
+                    .LoadDependencies(_serviceProvider)
+                    .OnAfterAsync(methodExecutionArgs)));
             }
 
             return (T) methodExecutionArgs.ReturnValue;
