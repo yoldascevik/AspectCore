@@ -13,25 +13,29 @@ namespace AspectCore.Test.Web.Logging
         
         public override void OnBefore(MethodExecutionArgs args)
         {
-            _logger = CreateLoggerInstance(args.ServiceProvider);
             _logger.LogInformation($"OnBefore method excecuting. Method Name : {args.Method.Name}");
+        }
+
+        public override Task OnBeforeAsync(MethodExecutionArgs args)
+        {
+            _logger.LogInformation($"OnBeforeAsync method excecuting. Method Name : {args.Method.Name}");
+            return Task.CompletedTask;
         }
 
         public override void OnSuccess(MethodExecutionArgs args)
         {
-            _logger = CreateLoggerInstance(args.ServiceProvider);
             _logger.LogInformation($"OnSuccess method excecuting. Method Name : {args.Method.Name}");
         }
 
         public override void OnAfter(MethodExecutionArgs args)
         {
-            _logger = CreateLoggerInstance(args.ServiceProvider);
             _logger.LogInformation($"OnAfter method excecuting. Method Name : {args.Method.Name}");
         }
 
-        private ILogger<AOPLoggingAttribute> CreateLoggerInstance(IServiceProvider serviceProvider)
+        public override AspectAttribute LoadDependencies(IServiceProvider serviceProvider)
         {
-            return _logger ?? serviceProvider.GetService<ILogger<AOPLoggingAttribute>>();
+            _logger ??= serviceProvider.GetService<ILogger<AOPLoggingAttribute>>();
+            return this;
         }
     }
 }

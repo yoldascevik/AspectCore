@@ -21,5 +21,8 @@ namespace AspectCore.Aspects
         public virtual void OnAfter(MethodExecutionArgs args) { }
         public virtual Task OnAfterAsync(MethodExecutionArgs args)
             => Task.Run(() => OnAfter(args));
+
+        public virtual AspectAttribute LoadDependencies(IServiceProvider serviceProvider)
+            => this;
     }
 }

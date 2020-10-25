@@ -1,3 +1,5 @@
+using System;
+
 namespace AspectCore.Aspects
 {
     public interface IAspect
@@ -27,5 +29,13 @@ namespace AspectCore.Aspects
         /// </summary>
         /// <param name="args">Method executing arguments</param>
         public void OnAfter(MethodExecutionArgs args);
+
+        /// <summary>
+        /// Load required dependencies from DI
+        /// This method is called before all aspect methods.
+        /// </summary>
+        /// <param name="serviceProvider">DI ServiceProvider</param>
+        /// <returns>AspectAttribute instance</returns>
+        public AspectAttribute LoadDependencies(IServiceProvider serviceProvider);
     }
 }

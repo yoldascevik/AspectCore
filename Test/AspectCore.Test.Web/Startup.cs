@@ -1,13 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AspectCore.Decorators;
 using AspectCore.Test.Web.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -35,7 +28,9 @@ namespace AspectCore.Test.Web
             
             services.AddControllers();
             services.AddScoped<IWeatherForecastService, WeatherForecastService>();
-            services.DecorateWithDispatchProxy<IWeatherForecastService, AspectDecorator<IWeatherForecastService>>();
+            services.DecorateWithAspect<IWeatherForecastService>();
+            // services.DecorateWithAspect(typeof(IWeatherForecastService).Assembly);
+            //services.DecorateWithAspect<IAspectDecorated>(typeof(IWeatherForecastService).Assembly);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
