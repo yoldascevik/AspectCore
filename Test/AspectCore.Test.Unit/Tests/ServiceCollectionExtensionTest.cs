@@ -2,12 +2,12 @@ using AspectCore.Test.Unit.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace AspectCore.Test.Unit
+namespace AspectCore.Test.Unit.Tests
 {
     public class ServiceCollectionExtensionTest
     {
         [Fact]
-        public void DecorateWithAspect_ExpectedTrue()
+        public void DecorateWithAspect_ExpectedMethodInvoke()
         {
             // Arrange
             var services = new ServiceCollection()
@@ -15,17 +15,18 @@ namespace AspectCore.Test.Unit
                 .DecorateWithAspect<IAspectTestService1>();
             
             var provider = services.BuildServiceProvider();
+            var testService = provider.GetRequiredService<IAspectTestService1>();
+            var expectedMethodInvoke = InvokeMethod.OnBefore;
 
             // Actual
-            var testService = provider.GetRequiredService<IAspectTestService1>();
-            bool doWork = testService.DoWork();
+            InvokeMethod actualMethodInvoke = testService.TestAspectMethodInvoke(expectedMethodInvoke);
 
             // Assert
-            Assert.True(doWork);
+            Assert.Equal(expectedMethodInvoke, actualMethodInvoke);
         }
         
         [Fact]
-        public void DecorateAllInterfacesImplemented_ExpectedTrue()
+        public void DecorateAllInterfacesImplemented_ExpectedMethodInvoke()
         {
             // Arrange
             var services = new ServiceCollection()
@@ -34,20 +35,21 @@ namespace AspectCore.Test.Unit
                 .DecorateAllInterfacesImplemented<IAspectDecorated>(typeof(IAspectTestService1).Assembly);
             
             var provider = services.BuildServiceProvider();
-
-            // Actual
             var testService1 = provider.GetRequiredService<IAspectTestService1>();
             var testService2 = provider.GetRequiredService<IAspectTestService2>();
-            var doWork1 = testService1.DoWork();
-            var doWork2 = testService2.DoWork();
+            var expectedMethodInvoke = InvokeMethod.OnBefore;
 
+            // Actual
+            InvokeMethod actualMethodInvoke1 = testService1.TestAspectMethodInvoke(expectedMethodInvoke);
+            InvokeMethod actualMethodInvoke2 = testService2.TestAspectMethodInvoke(expectedMethodInvoke);
+            
             // Assert
-            Assert.True(doWork1);
-            Assert.True(doWork2);
+            Assert.Equal(expectedMethodInvoke, actualMethodInvoke1);
+            Assert.Equal(expectedMethodInvoke, actualMethodInvoke2);
         }
         
         [Fact]
-        public void DecorateAllInterfacesUsingAspect_ExpectedTrue()
+        public void DecorateAllInterfacesUsingAspect_ExpectedMethodInvoke()
         {
             // Arrange
             var services = new ServiceCollection()
@@ -56,16 +58,17 @@ namespace AspectCore.Test.Unit
                 .DecorateAllInterfacesUsingAspect(typeof(IAspectTestService1).Assembly);
             
             var provider = services.BuildServiceProvider();
-
-            // Actual
             var testService1 = provider.GetRequiredService<IAspectTestService1>();
             var testService2 = provider.GetRequiredService<IAspectTestService2>();
-            var doWork1 = testService1.DoWork();
-            var doWork2 = testService2.DoWork();
+            var expectedMethodInvoke = InvokeMethod.OnBefore;
 
+            // Actual
+            InvokeMethod actualMethodInvoke1 = testService1.TestAspectMethodInvoke(expectedMethodInvoke);
+            InvokeMethod actualMethodInvoke2 = testService2.TestAspectMethodInvoke(expectedMethodInvoke);
+            
             // Assert
-            Assert.True(doWork1);
-            Assert.True(doWork2);
+            Assert.Equal(expectedMethodInvoke, actualMethodInvoke1);
+            Assert.Equal(expectedMethodInvoke, actualMethodInvoke2);
         }
     }
 }
