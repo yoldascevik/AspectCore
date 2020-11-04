@@ -6,8 +6,8 @@
         <Description>Aspect Oriented Programming Core Library With DispatchProxy in .NET Core</Description>
         <RepositoryUrl>https://github.com/yoldascevik/AspectCore</RepositoryUrl>
         <PackageProjectUrl>https://github.com/yoldascevik/AspectCore</PackageProjectUrl>
-        <Version>1.1</Version>
-        <PackageVersion>1.1</PackageVersion>
+        <Version>1.1.2</Version>
+        <PackageVersion>1.1.2</PackageVersion>
     </PropertyGroup>
     
     <PropertyGroup>

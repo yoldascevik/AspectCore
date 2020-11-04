@@ -13,10 +13,12 @@ namespace AspectCore.Aspects
         public virtual void OnSuccess(MethodExecutionArgs args) { }
         public virtual Task OnSuccessAsync(MethodExecutionArgs args)
             => Task.Run(() => OnSuccess(args));
-        
-        public virtual void OnException(MethodExecutionArgs args) { }
+
+        public virtual void OnException(MethodExecutionArgs args) 
+            => throw args.Exception;
+
         public virtual Task OnExceptionAsync(MethodExecutionArgs args)
-            => Task.Run(() => OnException(args));
+            => throw args.Exception;
 
         public virtual void OnAfter(MethodExecutionArgs args) { }
         public virtual Task OnAfterAsync(MethodExecutionArgs args)
