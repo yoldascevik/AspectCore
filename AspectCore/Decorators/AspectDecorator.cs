@@ -25,7 +25,7 @@ namespace AspectCore.Decorators
             if (method == null)
                 throw new ArgumentNullException(nameof(method));
             
-            List<AspectAttribute> aspects = method.GetCustomAttributes<AspectAttribute>(true).ToList();
+            List<AspectAttribute> aspects = method.GetCustomAttributes<AspectAttribute>(true).OrderBy(x => x.Order).ToList();
             if (!aspects.Any())
             {
                 return method.Invoke(_decorated, args);
@@ -71,7 +71,7 @@ namespace AspectCore.Decorators
             if (method == null)
                 throw new ArgumentNullException(nameof(method));
             
-            List<AspectAttribute> aspects = method.GetCustomAttributes<AspectAttribute>(true).ToList();
+            List<AspectAttribute> aspects = method.GetCustomAttributes<AspectAttribute>(true).OrderBy(x => x.Order).ToList();
             if (!aspects.Any())
             {
                 await (Task) method.Invoke(_decorated, args);
@@ -80,33 +80,42 @@ namespace AspectCore.Decorators
 
             // OnBefore
             var methodExecutionArgs = new MethodExecutionArgs(method, args);
-            await Task.WhenAll(aspects.Select(aspect => aspect
-                .LoadDependencies(_serviceProvider)
-                .OnBeforeAsync(methodExecutionArgs)));
-            
+
+            foreach (var aspect in aspects)
+            {
+                await aspect.LoadDependencies(_serviceProvider)
+                    .OnBeforeAsync(methodExecutionArgs);
+            }
+
             try
             {
                 await (Task) method.Invoke(_decorated, args);
 
                 // OnSuccess
-                await Task.WhenAll(aspects.Select(aspect => aspect
-                    .LoadDependencies(_serviceProvider)
-                    .OnSuccessAsync(methodExecutionArgs)));
+                foreach (var aspect in aspects)
+                {
+                    await aspect.LoadDependencies(_serviceProvider)
+                        .OnSuccessAsync(methodExecutionArgs);
+                }
             }
             catch (Exception exception)
             {
                 // OnException
                 methodExecutionArgs.Exception = exception;
-                await Task.WhenAll(aspects.Select(aspect => aspect
-                    .LoadDependencies(_serviceProvider)
-                    .OnExceptionAsync(methodExecutionArgs)));
+                foreach (var aspect in aspects)
+                {
+                    await aspect.LoadDependencies(_serviceProvider)
+                        .OnExceptionAsync(methodExecutionArgs);
+                }
             }
             finally
             {
                 // OnAfter
-                await Task.WhenAll(aspects.Select(aspect => aspect
-                    .LoadDependencies(_serviceProvider)
-                    .OnAfterAsync(methodExecutionArgs)));
+                foreach (var aspect in aspects)
+                {
+                    await aspect.LoadDependencies(_serviceProvider)
+                        .OnAfterAsync(methodExecutionArgs);
+                }
             }
         }
 
@@ -115,7 +124,7 @@ namespace AspectCore.Decorators
             if (method == null)
                 throw new ArgumentNullException(nameof(method));
             
-            List<AspectAttribute> aspects = method.GetCustomAttributes<AspectAttribute>(true).ToList();
+            List<AspectAttribute> aspects = method.GetCustomAttributes<AspectAttribute>(true).OrderBy(x => x.Order).ToList();
             if (!aspects.Any())
             {
                 return await (Task<T>) method.Invoke(_decorated, args);
@@ -123,34 +132,42 @@ namespace AspectCore.Decorators
 
             // OnBefore
             var methodExecutionArgs = new MethodExecutionArgs(method, args);
-            await Task.WhenAll(aspects.Select(aspect => aspect
-                .LoadDependencies(_serviceProvider)
-                .OnBeforeAsync(methodExecutionArgs)));
-            
+            foreach (var aspect in aspects)
+            {
+                await aspect.LoadDependencies(_serviceProvider)
+                    .OnBeforeAsync(methodExecutionArgs);
+            }
+
             try
             {
                 if (methodExecutionArgs?.ReturnValue == null)
                     methodExecutionArgs.ReturnValue =  await (Task<T>) method.Invoke(_decorated, args);
 
                 // OnSuccess
-                await Task.WhenAll(aspects.Select(aspect => aspect
-                    .LoadDependencies(_serviceProvider)
-                    .OnSuccessAsync(methodExecutionArgs)));
+                foreach (var aspect in aspects)
+                {
+                    await aspect.LoadDependencies(_serviceProvider)
+                        .OnSuccessAsync(methodExecutionArgs);
+                }
             }
             catch (Exception exception)
             {
                 // OnException
                 methodExecutionArgs.Exception = exception;
-                await Task.WhenAll(aspects.Select(aspect => aspect
-                    .LoadDependencies(_serviceProvider)
-                    .OnExceptionAsync(methodExecutionArgs)));
+                foreach (var aspect in aspects)
+                {
+                    await aspect.LoadDependencies(_serviceProvider)
+                        .OnExceptionAsync(methodExecutionArgs);
+                }
             }
             finally
             {
                 // OnAfter
-                await Task.WhenAll(aspects.Select(aspect => aspect
-                    .LoadDependencies(_serviceProvider)
-                    .OnAfterAsync(methodExecutionArgs)));
+                foreach (var aspect in aspects)
+                {
+                    await aspect.LoadDependencies(_serviceProvider)
+                        .OnAfterAsync(methodExecutionArgs);
+                }
             }
 
             return (T) methodExecutionArgs.ReturnValue;

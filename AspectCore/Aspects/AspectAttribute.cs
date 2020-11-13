@@ -6,6 +6,7 @@ namespace AspectCore.Aspects
     [AttributeUsage(AttributeTargets.Method)]
     public abstract class AspectAttribute: Attribute, IAspect, IAspectAsync
     {
+        public virtual int Order => 1;
         public virtual void OnBefore(MethodExecutionArgs args) { }
         public virtual Task OnBeforeAsync(MethodExecutionArgs args) 
             => Task.Run(() => OnBefore(args));
