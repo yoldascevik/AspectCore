@@ -7,10 +7,10 @@ using Microsoft.Extensions.Logging;
 namespace AspectCore.Test.Web.Logging
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class AOPLoggingAttribute: AspectAttribute
+    public class AOPSecondLoggingAttribute : AspectAttribute
     {
         private ILogger<AOPLoggingAttribute> _logger;
-        public override int Order => 1;
+        public override int Order => 2;
 
         public override void OnBefore(MethodExecutionArgs args)
         {
