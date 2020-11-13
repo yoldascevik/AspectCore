@@ -7,6 +7,7 @@ namespace AspectCore.Test.Web.Services
     public interface IWeatherForecastService: IAspectDecorated
     {
         [AOPLogging]
+        [AOPSecondLogging]
         public IEnumerable<WeatherForecast> GetSummaries();
         
         [AOPLogging]
