@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using AspectCore.Test.Unit.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,7 +5,7 @@ using Xunit;
 
 namespace AspectCore.Test.Unit.Tests
 {
-    public class AspectAttributeTest
+    public class InterfaceLevelAspectAttributeTest
     {
         [Theory]
         [InlineData(InvokeMethod.OnBefore)]
@@ -17,11 +16,11 @@ namespace AspectCore.Test.Unit.Tests
         {
             // Arrange
             var services = new ServiceCollection()
-                .AddTransient<IAspectTestService1, AspectTestService1>()
-                .DecorateWithAspect<IAspectTestService1>();
+                .AddTransient<IInterfaceLevelAspectTestService, InterfaceLevelAspectTestService>()
+                .DecorateWithAspect<IInterfaceLevelAspectTestService>();
             
             var provider = services.BuildServiceProvider();
-            var testService = provider.GetRequiredService<IAspectTestService1>();
+            var testService = provider.GetRequiredService<IInterfaceLevelAspectTestService>();
 
             // Actual
             InvokeMethod methodResult = testService.TestAspectMethodInvoke(invokedMethod);
@@ -39,11 +38,11 @@ namespace AspectCore.Test.Unit.Tests
         {
             // Arrange
             var services = new ServiceCollection()
-                .AddTransient<IAspectTestService1, AspectTestService1>()
-                .DecorateWithAspect<IAspectTestService1>();
+                .AddTransient<IInterfaceLevelAspectTestService, InterfaceLevelAspectTestService>()
+                .DecorateWithAspect<IInterfaceLevelAspectTestService>();
             
             var provider = services.BuildServiceProvider();
-            var testService = provider.GetRequiredService<IAspectTestService1>();
+            var testService = provider.GetRequiredService<IInterfaceLevelAspectTestService>();
 
             // Actual
             InvokeMethod methodResult = await testService.TestAspectMethodInvokeAsync(invokedMethod);
@@ -51,24 +50,27 @@ namespace AspectCore.Test.Unit.Tests
             // Assert
             Assert.Equal(invokedMethod, methodResult);    
         }
-
-        [Fact]
-        public void LoadDependencies_GetServiceType_ShouldBeDITestService()
+        
+        [Theory]
+        [InlineData(InvokeMethod.OnBeforeAsync)]
+        [InlineData(InvokeMethod.OnSuccessAsync)]
+        [InlineData(InvokeMethod.OnExceptionAsync)]
+        [InlineData(InvokeMethod.OnAfterAsync)]
+        public async Task TestAspectMethodInvokeAsync_ForInheritence_ShouldBeExpectedResult_WithSpecificInvokeMethod(InvokeMethod invokedMethod)
         {
             // Arrange
             var services = new ServiceCollection()
-                .AddTransient<IAspectTestService1, AspectTestService1>()
-                .AddTransient<IDITestService, DITestService>()
-                .DecorateWithAspect<IAspectTestService1>();
+                .AddTransient<IInterfaceLevelAspectTestService, InheritenceAspectTestService>()
+                .DecorateWithAspect<IInterfaceLevelAspectTestService>();
             
             var provider = services.BuildServiceProvider();
-            var testService = provider.GetRequiredService<IAspectTestService1>();
+            var testService = provider.GetRequiredService<IInterfaceLevelAspectTestService>();
 
             // Actual
-            Type calledServiceType = testService.GetServiceType();
+            InvokeMethod methodResult = await testService.TestAspectMethodInvokeAsync(invokedMethod);
 
             // Assert
-            Assert.Equal(typeof(DITestService), calledServiceType);    
+            Assert.Equal(invokedMethod, methodResult);    
         }
     }
 }

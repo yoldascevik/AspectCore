@@ -70,5 +70,24 @@ namespace AspectCore.Test.Unit.Tests
             Assert.Equal(expectedMethodInvoke, actualMethodInvoke1);
             Assert.Equal(expectedMethodInvoke, actualMethodInvoke2);
         }
+        
+        [Fact]
+        public void DecorateAllInterfacesUsingAspect_ForInterfaceLevel_ExpectedMethodInvoke()
+        {
+            // Arrange
+            var services = new ServiceCollection()
+                .AddTransient<IInterfaceLevelAspectTestService, InterfaceLevelAspectTestService>()
+                .DecorateAllInterfacesUsingAspect(typeof(IInterfaceLevelAspectTestService).Assembly);
+            
+            var provider = services.BuildServiceProvider();
+            var testService = provider.GetRequiredService<IInterfaceLevelAspectTestService>();
+            var expectedMethodInvoke = InvokeMethod.OnBefore;
+
+            // Actual
+            InvokeMethod actualMethodInvoke = testService.TestAspectMethodInvoke(expectedMethodInvoke);
+            
+            // Assert
+            Assert.Equal(expectedMethodInvoke, actualMethodInvoke);
+        }
     }
 }

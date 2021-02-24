@@ -1,4 +1,4 @@
-using System;
+ using System;
 using System.Threading.Tasks;
 using AspectCore.Aspects;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,23 +14,31 @@ namespace AspectCore.Test.Web.Logging
 
         public override void OnBefore(MethodExecutionArgs args)
         {
-            _logger.LogInformation($"OnBefore method excecuting. Method Name : {args.Method.Name}, AttributeName = {nameof(AOPLoggingAttribute)}, Order : {Order}");
+            LogExecutingMethodInfo("OnBefore", args);
         }
 
         public override Task OnBeforeAsync(MethodExecutionArgs args)
         {
-            _logger.LogInformation($"OnBeforeAsync method excecuting. Method Name : {args.Method.Name}, AttributeName = {nameof(AOPLoggingAttribute)}, Order : {Order}");
+            LogExecutingMethodInfo("OnBeforeAsync", args);
             return Task.CompletedTask;
         }
 
         public override void OnSuccess(MethodExecutionArgs args)
         {
-            _logger.LogInformation($"OnSuccess method excecuting. Method Name : {args.Method.Name}, AttributeName = {nameof(AOPLoggingAttribute)}, Order : {Order}");
+            LogExecutingMethodInfo("OnSuccess", args);
         }
 
         public override void OnAfter(MethodExecutionArgs args)
         {
-            _logger.LogInformation($"OnAfter method excecuting. Method Name : {args.Method.Name}, AttributeName = {nameof(AOPLoggingAttribute)}, Order : {Order}");
+            LogExecutingMethodInfo("OnAfter", args);
+        }
+
+        private void LogExecutingMethodInfo(string attributeMethodName, MethodExecutionArgs args)
+        {
+            _logger.LogInformation("{AttributeMethodName} method excecuting. " +
+                                   "Method Name : {MethodName}, " +
+                                   "AttributeName = {AttributeName}, " +
+                                   "Order : {Order}", attributeMethodName, args.Method.Name, GetType().Name, Order);
         }
 
         public override AspectAttribute LoadDependencies(IServiceProvider serviceProvider)

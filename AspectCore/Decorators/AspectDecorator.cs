@@ -8,24 +8,21 @@ using AspectCore.DispatchProxy;
 
 namespace AspectCore.Decorators
 {
-    public class AspectDecorator<TDecorated>: DispatchProxyAsync
+    public class AspectDecorator<TDecorated> : DispatchProxyAsync
     {
         private TDecorated _decorated;
         private IServiceProvider _serviceProvider;
-        
+
         public static TDecorated Create(TDecorated decorated, IServiceProvider serviceProvider)
         {
             object proxy = Create<TDecorated, AspectDecorator<TDecorated>>();
-            ((AspectDecorator<TDecorated>)proxy).SetParameters(decorated, serviceProvider);
-            return (TDecorated)proxy;
+            ((AspectDecorator<TDecorated>) proxy).SetParameters(decorated, serviceProvider);
+            return (TDecorated) proxy;
         }
 
         public override object Invoke(MethodInfo method, object[] args)
         {
-            if (method == null)
-                throw new ArgumentNullException(nameof(method));
-            
-            List<AspectAttribute> aspects = method.GetCustomAttributes<AspectAttribute>(true).OrderBy(x => x.Order).ToList();
+            List<AspectAttribute> aspects = GetAspectAttributesFromMethodInfo(method);
             if (!aspects.Any())
             {
                 return method.Invoke(_decorated, args);
@@ -39,8 +36,7 @@ namespace AspectCore.Decorators
 
             try
             {
-                if (methodExecutionArgs.ReturnValue == null)
-                    methodExecutionArgs.ReturnValue = method.Invoke(_decorated, args);
+                methodExecutionArgs.ReturnValue ??= method.Invoke(_decorated, args);
 
                 // OnSuccess
                 aspects.ForEach(attribute => attribute
@@ -68,111 +64,101 @@ namespace AspectCore.Decorators
 
         public override async Task InvokeAsync(MethodInfo method, object[] args)
         {
-            if (method == null)
-                throw new ArgumentNullException(nameof(method));
-            
-            List<AspectAttribute> aspects = method.GetCustomAttributes<AspectAttribute>(true).OrderBy(x => x.Order).ToList();
+            List<AspectAttribute> aspects = GetAspectAttributesFromMethodInfo(method);
             if (!aspects.Any())
             {
-                await (Task) method.Invoke(_decorated, args);
+                await (Task) method?.Invoke(_decorated, args);
                 return;
             }
 
             // OnBefore
             var methodExecutionArgs = new MethodExecutionArgs(method, args);
-
-            foreach (var aspect in aspects)
-            {
-                await aspect.LoadDependencies(_serviceProvider)
-                    .OnBeforeAsync(methodExecutionArgs);
-            }
-
+            aspects.ForEach(async attribute => await attribute
+                .LoadDependencies(_serviceProvider)
+                .OnBeforeAsync(methodExecutionArgs));
+            
             try
             {
-                await (Task) method.Invoke(_decorated, args);
+                await (Task) method?.Invoke(_decorated, args);
 
                 // OnSuccess
-                foreach (var aspect in aspects)
-                {
-                    await aspect.LoadDependencies(_serviceProvider)
-                        .OnSuccessAsync(methodExecutionArgs);
-                }
+                aspects.ForEach(async attribute => await attribute
+                    .LoadDependencies(_serviceProvider)
+                    .OnSuccessAsync(methodExecutionArgs));
             }
             catch (Exception exception)
             {
                 // OnException
                 methodExecutionArgs.Exception = exception;
-                foreach (var aspect in aspects)
-                {
-                    await aspect.LoadDependencies(_serviceProvider)
-                        .OnExceptionAsync(methodExecutionArgs);
-                }
+                aspects.ForEach(async attribute => await attribute
+                    .LoadDependencies(_serviceProvider)
+                    .OnExceptionAsync(methodExecutionArgs));
             }
             finally
             {
                 // OnAfter
-                foreach (var aspect in aspects)
-                {
-                    await aspect.LoadDependencies(_serviceProvider)
-                        .OnAfterAsync(methodExecutionArgs);
-                }
+                aspects.ForEach(async attribute => await attribute
+                    .LoadDependencies(_serviceProvider)
+                    .OnAfterAsync(methodExecutionArgs));
             }
         }
 
         public override async Task<T> InvokeAsyncT<T>(MethodInfo method, object[] args)
-        { 
-            if (method == null)
-                throw new ArgumentNullException(nameof(method));
-            
-            List<AspectAttribute> aspects = method.GetCustomAttributes<AspectAttribute>(true).OrderBy(x => x.Order).ToList();
+        {
+            List<AspectAttribute> aspects = GetAspectAttributesFromMethodInfo(method);
             if (!aspects.Any())
             {
-                return await (Task<T>) method.Invoke(_decorated, args);
+                return await (Task<T>) method?.Invoke(_decorated, args);
             }
 
             // OnBefore
             var methodExecutionArgs = new MethodExecutionArgs(method, args);
-            foreach (var aspect in aspects)
-            {
-                await aspect.LoadDependencies(_serviceProvider)
-                    .OnBeforeAsync(methodExecutionArgs);
-            }
+            aspects.ForEach(async attribute => await attribute
+                .LoadDependencies(_serviceProvider)
+                .OnBeforeAsync(methodExecutionArgs));
 
             try
             {
-                if (methodExecutionArgs?.ReturnValue == null)
-                    methodExecutionArgs.ReturnValue =  await (Task<T>) method.Invoke(_decorated, args);
+                methodExecutionArgs.ReturnValue ??= await (Task<T>) method?.Invoke(_decorated, args);
 
                 // OnSuccess
-                foreach (var aspect in aspects)
-                {
-                    await aspect.LoadDependencies(_serviceProvider)
-                        .OnSuccessAsync(methodExecutionArgs);
-                }
+                aspects.ForEach(async attribute => await attribute
+                    .LoadDependencies(_serviceProvider)
+                    .OnSuccessAsync(methodExecutionArgs));
             }
             catch (Exception exception)
             {
                 // OnException
                 methodExecutionArgs.Exception = exception;
-                foreach (var aspect in aspects)
-                {
-                    await aspect.LoadDependencies(_serviceProvider)
-                        .OnExceptionAsync(methodExecutionArgs);
-                }
+                aspects.ForEach(async attribute => await attribute
+                    .LoadDependencies(_serviceProvider)
+                    .OnExceptionAsync(methodExecutionArgs));
             }
             finally
             {
                 // OnAfter
-                foreach (var aspect in aspects)
-                {
-                    await aspect.LoadDependencies(_serviceProvider)
-                        .OnAfterAsync(methodExecutionArgs);
-                }
+                aspects.ForEach(async attribute => await attribute
+                    .LoadDependencies(_serviceProvider)
+                    .OnAfterAsync(methodExecutionArgs));
             }
 
             return (T) methodExecutionArgs.ReturnValue;
         }
         
+        private List<AspectAttribute> GetAspectAttributesFromMethodInfo(MethodInfo method)
+        {
+            if (method == null)
+                throw new ArgumentNullException(nameof(method));
+
+            IEnumerable<AspectAttribute> aspectAttributes = method.GetCustomAttributes<AspectAttribute>(true);
+            if (method.DeclaringType != null)
+            {
+                aspectAttributes = aspectAttributes.Concat(method.DeclaringType.GetCustomAttributes<AspectAttribute>(true));
+            }
+
+            return aspectAttributes.Distinct().OrderBy(attr => attr.Order).ToList();
+        }
+
         private void SetParameters(TDecorated decorated, IServiceProvider serviceProvider)
         {
             _decorated = decorated ?? throw new ArgumentNullException(nameof(decorated));
