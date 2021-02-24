@@ -5,6 +5,7 @@ using AspectCore.Aspects;
 
 namespace AspectCore.Test.Unit.AspectAttributes
 {
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Method)]
     public class MethodInvokeTestAttribute: AspectAttribute
     {
         public override void OnBefore(MethodExecutionArgs args)

@@ -60,8 +60,9 @@ namespace AspectCore
                 throw new ArgumentNullException(nameof(assembly));
 
             Type[] assignableInterfaceTypes = assembly.GetTypes()
-                .Where(t => t.IsInterface &&
-                            t.GetMethods().Any(method => method.GetCustomAttribute<AspectAttribute>() != null))
+                .Where(t => t.IsInterface && (
+                            t.GetCustomAttribute<AspectAttribute>() != null ||
+                            t.GetMethods().Any(method => method.GetCustomAttribute<AspectAttribute>() != null)))
                 .ToArray();
 
             return services.DescribeAll(assignableInterfaceTypes);

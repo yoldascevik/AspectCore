@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Aspects
 {
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Method)]
     public abstract class AspectAttribute: Attribute, IAspect, IAspectAsync
     {
         public virtual int Order => 1;
